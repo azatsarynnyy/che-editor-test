@@ -1,3 +1,70 @@
 schemaVersion: 2.1.0
 metadata:
-  name: wksp-tfnf
+  name: spring-petclinic-test
+  namespace: admin-che
+projects:
+  - git:
+      checkoutFrom:
+        revision: devfilev2
+      remotes:
+        origin: 'https://github.com/che-samples/java-spring-petclinic.git'
+    name: java-spring-petclinic
+components:
+  - attributes:
+      app.kubernetes.io/name: tools
+      che-theia.eclipse.org/vscode-extensions:
+        - 'https://download.jboss.org/jbosstools/static/jdt.ls/stable/java-0.75.0-60.vsix'
+        - 'https://download.jboss.org/jbosstools/vscode/3rdparty/vscode-java-debug/vscode-java-debug-0.26.0.vsix'
+        - 'https://open-vsx.org/api/vscjava/vscode-java-test/0.28.1/file/vscjava.vscode-java-test-0.28.1.vsix'
+      che-theia.eclipse.org/vscode-preferences:
+        java.server.launchMode: Standard
+    container:
+      args:
+        - sh
+        - '-c'
+        - '${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}'
+      endpoints:
+        - exposure: none
+          name: debug
+          protocol: tcp
+          targetPort: 5005
+        - exposure: public
+          name: 8080-tcp
+          protocol: http
+          targetPort: 8080
+      env:
+        - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+          value: /remote-endpoint/plugin-remote-endpoint
+        - name: THEIA_PLUGINS
+          value: 'local-dir:///plugins/sidecars/tools'
+      image: 'quay.io/eclipse/che-java11-maven:next'
+      memoryLimit: 3Gi
+      sourceMapping: /projects
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+        - name: remote-endpoint
+          path: /remote-endpoint
+        - name: plugins
+          path: /plugins
+    name: tools
+  - name: m2
+    volume:
+      size: 1G
+commands:
+  - exec:
+      commandLine: mvn clean install
+      component: tools
+      group:
+        isDefault: true
+        kind: build
+      workingDir: '${PROJECTS_ROOT}/java-spring-petclinic'
+    id: build
+  - exec:
+      commandLine: 'java -jar -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 target/*.jar'
+      component: tools
+      group:
+        isDefault: true
+        kind: run
+      workingDir: '${PROJECTS_ROOT}/java-spring-petclinic'
+    id: run
