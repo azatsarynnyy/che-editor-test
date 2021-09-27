@@ -11,7 +11,7 @@ events:
 components:
   - name: theia-ide
     container:
-      image: 'quay.io/crw_pr/che-theia:1222'
+      image: 'quay.io/crw_pr/che-theia:1095'
       env:
         - name: THEIA_PLUGINS
           value: 'local-dir:///plugins'
@@ -125,7 +125,7 @@ components:
       app.kubernetes.io/part-of: che-theia.eclipse.org
   - name: remote-runtime-injector
     container:
-      image: 'quay.io/crw_pr/che-theia-endpoint-runtime-binary:1222'
+      image: 'quay.io/crw_pr/che-theia-endpoint-runtime-binary:1095'
       env:
         - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
           value: /remote-endpoint/plugin-remote-endpoint
