@@ -1,3 +1,116 @@
 schemaVersion: 2.1.0
 metadata:
-  name: wksp-tfnf
+  name: java-guestbook
+  namespace: user1-che
+components:
+  - attributes:
+      app.kubernetes.io/name: tools
+      che-theia.eclipse.org/vscode-extensions:
+        - 'https://download.jboss.org/jbosstools/static/jdt.ls/stable/java-0.82.0-369.vsix'
+        - 'https://download.jboss.org/jbosstools/vscode/3rdparty/vscode-java-debug/vscode-java-debug-0.26.0.vsix'
+        - 'https://open-vsx.org/api/vscjava/vscode-java-test/0.28.1/file/vscjava.vscode-java-test-0.28.1.vsix'
+      che-theia.eclipse.org/vscode-preferences:
+        java.server.launchMode: Standard
+    container:
+      args:
+        - sh
+        - '-c'
+        - '${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}'
+      endpoints:
+        - exposure: public
+          name: java-guestbook-backend
+          protocol: http
+          targetPort: 8080
+        - exposure: public
+          name: java-guestbook
+          protocol: tcp
+          targetPort: 8443
+        - exposure: none
+          name: debug
+          protocol: tcp
+          targetPort: 5005
+      env:
+        - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+          value: /remote-endpoint/plugin-remote-endpoint
+        - name: THEIA_PLUGINS
+          value: 'local-dir:///plugins/sidecars/tools'
+      image: 'quay.io/devfile/universal-developer-image:ubi8-d433ed6'
+      memoryLimit: 3Gi
+      sourceMapping: /projects
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+        - name: remote-endpoint
+          path: /remote-endpoint
+        - name: plugins
+          path: /plugins
+    name: tools
+  - container:
+      endpoints:
+        - exposure: none
+          name: java-guestbook-mongodb
+          protocol: tcp
+          targetPort: 27017
+      env:
+        - name: MONGODB_USER
+          value: user
+        - name: MONGODB_PASSWORD
+          value: password
+        - name: MONGODB_DATABASE
+          value: guestbook
+        - name: MONGODB_ADMIN_PASSWORD
+          value: password
+      image: 'quay.io/eclipse/che--centos--mongodb-36-centos7:latest-ffdf2431bbc6d9a9d2a03e95bbbe8adb49ab9eac301f268a35038c84288259c1'
+      memoryLimit: 300Mi
+      sourceMapping: /projects
+      volumeMounts:
+        - name: mongodbdata
+          path: /var/lib/mongodb/data
+    name: mongo
+  - name: m2
+    volume:
+      size: 1G
+  - name: mongodbdata
+    volume:
+      size: 1G
+commands:
+  - exec:
+      commandLine: mvn clean install
+      component: tools
+      group:
+        isDefault: true
+        kind: build
+      label: build backend
+      workingDir: '${PROJECTS_ROOT}/java-guestbook/backend'
+    id: maven-build-backend
+  - exec:
+      commandLine: mvn clean install
+      component: tools
+      group:
+        isDefault: true
+        kind: build
+      label: build frontend
+      workingDir: '${PROJECTS_ROOT}/java-guestbook/frontend'
+    id: maven-build-frontend
+  - exec:
+      commandLine: |
+        java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006,quiet=y \
+        -jar target/backend-1.0.jar
+      component: tools
+      group:
+        isDefault: true
+        kind: run
+      label: run backend
+      workingDir: '${PROJECTS_ROOT}/java-guestbook/backend'
+    id: run-backend
+  - exec:
+      commandLine: |
+        java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005,quiet=y \
+        -jar target/frontend-1.0.jar
+      component: tools
+      group:
+        isDefault: true
+        kind: run
+      label: run frontend
+      workingDir: '${PROJECTS_ROOT}/java-guestbook/frontend'
+    id: run-frontend
