@@ -12,7 +12,7 @@ inline:
   components:
     - name: theia-ide
       container:
-        image: 'quay.io/azatsary/che-theia:git'
+        image: 'quay.io/azatsary/che-theia:git-1'
         env:
           - name: THEIA_PLUGINS
             value: 'local-dir:///plugins'
@@ -126,7 +126,7 @@ inline:
         app.kubernetes.io/part-of: che-theia.eclipse.org
     - name: remote-runtime-injector
       container:
-        image: 'quay.io/azatsary/che-theia-endpoint-runtime-binary:git'
+        image: 'quay.io/azatsary/che-theia-endpoint-runtime-binary:git-1'
         env:
           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
             value: /remote-endpoint/plugin-remote-endpoint
