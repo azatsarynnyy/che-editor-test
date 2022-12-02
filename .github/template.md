@@ -1,6 +1,6 @@
 ---
 title: Issue title
-assignees: azatsarynyy
+assignees: azatsarynnyy
 labels: bug
 
 ---
