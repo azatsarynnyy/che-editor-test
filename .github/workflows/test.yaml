@@ -22,5 +22,4 @@ jobs:
           gh api \
             --method PUT \
             -H "Accept: application/vnd.github+json" \
-            --hostname HOSTNAME \
             /repos/azatsarynnyy/che-editor-test/actions/workflows/test.yaml/disable
