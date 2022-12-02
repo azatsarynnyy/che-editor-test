@@ -18,6 +18,7 @@ jobs:
       - name: disable
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           gh api \
             --method PUT \
