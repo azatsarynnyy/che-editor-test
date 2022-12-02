@@ -13,3 +13,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_TITLE: Test issue
+        with:
+          filename: .github/template.md
