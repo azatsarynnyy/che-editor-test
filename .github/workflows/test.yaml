@@ -9,7 +9,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
       - name: issue
-      - uses: JasonEtco/create-an-issue@v2
+        uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_TITLE: Test issue
