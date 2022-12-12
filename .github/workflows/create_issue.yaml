@@ -1,0 +1,19 @@
+name: create_issue
+on:
+  workflow_dispatch:
+jobs:
+  issue-create:
+    name: Create an issue
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: create
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create --repo eclipse/che \
+            --title "Che-Code automatic rebase against upstream VS Code is failed" \
+            --body-file ".github/template.md" \
+            --assignee azatsarynnyy \
+            --label "kind/bug"
